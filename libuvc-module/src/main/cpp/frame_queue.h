@@ -20,4 +20,5 @@ private:
     Slot slots[SLOT_COUNT];
     size_t frameSize;
     std::atomic<int> writeIdx{0};
+    int currentWriteIdx = 0; // fixed for duration of a write cycle
 };
