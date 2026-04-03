@@ -1,0 +1,1 @@
+# Instructions on obtaining libjpeg-turbo, libyuv, libusb, libuvc prebuilt .so files

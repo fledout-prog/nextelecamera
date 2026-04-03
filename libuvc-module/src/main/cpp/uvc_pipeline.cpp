@@ -1,0 +1,1 @@
+// Full JNI implementation with nativeStart, frameCallback, nativeGetLatestFrame, nativeCapture, nativeStop as described
