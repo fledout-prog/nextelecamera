@@ -9,6 +9,7 @@ FrameQueue::FrameQueue(int width, int height) {
         slots[i].ready.store(false);
     }
     writeIdx.store(0);
+    currentWriteIdx = 0;
 }
 
 FrameQueue::~FrameQueue() { destroy(); }
@@ -22,14 +23,15 @@ void FrameQueue::destroy() {
 }
 
 uint8_t* FrameQueue::getWriteSlot() {
-    int idx = writeIdx.load(std::memory_order_relaxed) % SLOT_COUNT;
-    slots[idx].ready.store(false, std::memory_order_relaxed);
-    return slots[idx].data;
+    // Lock the slot index for this entire write cycle - prevents race with commitWrite()
+    currentWriteIdx = writeIdx.load(std::memory_order_relaxed) % SLOT_COUNT;
+    slots[currentWriteIdx].ready.store(false, std::memory_order_relaxed);
+    return slots[currentWriteIdx].data;
 }
 
 void FrameQueue::commitWrite() {
-    int idx = writeIdx.load(std::memory_order_relaxed) % SLOT_COUNT;
-    slots[idx].ready.store(true, std::memory_order_release);
+    // Use the same index captured in getWriteSlot()
+    slots[currentWriteIdx].ready.store(true, std::memory_order_release);
     writeIdx.fetch_add(1, std::memory_order_relaxed);
 }
 
